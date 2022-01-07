@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/appointment-scheduling
+    depends_on:
+      - database
+    container_name: appointment-scheduling-web
+    environment:
+      - 'DB_PORT=3306'
+      - 'DB_HOST=database'
+
+  database:
+    image: mysql:5.7.22
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: appointment_scheduling
+    container_name: appointment-scheduling-db
+    ports:
+      - 33066:3306
+    volumes:
+      - appointment-scheduling-data:/var/lib/mysql
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    depends_on:
+      - database
+    ports:
+      - 5003:80
+    environment:
+      - 'PMA_HOST=database'
+      - 'PMA_PORT=3306'
+    container_name: appointment-scheduling-pma
+
+
+# persisted storage
+volumes:
+  appointment-scheduling-data:
